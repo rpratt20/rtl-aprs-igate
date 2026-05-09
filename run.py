@@ -19,6 +19,7 @@ from configparser import RawConfigParser
 filename = "station.conf"
 rtl_aprs_igate_config = {
     # SDR settings
+    "source": "RTL-SDR",
     "frequency": 144.39,
     "device_idx": 0,
     "ppm": 0,
@@ -50,6 +51,7 @@ config.read(filename)
 ################
 # RTL-FM Options
 ################
+source = config.get("rtl_fm", "source")
 frequency = config.getfloat("rtl_fm", "frequency")
 device_idx = config.get("rtl_fm", "device_idx")
 ppm = config.getfloat("rtl_fm", "ppm")
@@ -64,6 +66,11 @@ except:
 if frequency < 100 or frequency > 800:
     logging.critical("Config file: Frequency %s is not valid! (Outside 100 - 800 MHz)" % frequency)
     sys.exit()
+
+if source != "RTL-SDR":
+    if frequency < 430 or frequency > 450:
+        logging.critical("Config file: Frequency %s is not suited for ka9q ground station! (Outside 430 - 450 MHz)" % frequency)
+        sys.exit()
 
 if ppm < -20 or ppm > 20:
     logging.critical("Config file: PPM %s is not valid! (Outside +/- 20 ppm)" % ppm)
@@ -155,6 +162,15 @@ rtl_fm_cmd = (
     f"{gain_param}"
     f"| direwolf -c direwolf.conf -r 24000 -"
 )
+
+if source != "RTL-SDR":
+    if device_idx != '0':
+        device_idx_param = f"{str(device_idx)} "
+    rtl_fm_cmd = (
+    f"{device_idx_param}"
+    f"| direwolf -c direwolf.conf -r 24000 -"
+)
+    
 
 print("command:", rtl_fm_cmd)
 
