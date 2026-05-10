@@ -153,29 +153,31 @@ except FileExistsError:
 ####################
 # Command Generation
 ####################
+if source != "ka9q":
 
-rtl_fm_cmd = (
-    f"rtl_fm -f {frequency}M "
-    f"{device_idx_param}"
-    f"{'-T ' if bias else ''}"
-    f"{ppm_param}"
-    f"{gain_param}"
-    f"| direwolf -c direwolf.conf -r 24000 -"
-)
-
-if source != "RTL-SDR":
-    if device_idx != '0':
-        device_idx_param = f"{str(device_idx)} "
     rtl_fm_cmd = (
-    f"{device_idx_param}"
-    f"| direwolf -c direwolf.conf -r 24000 -"
-)
-    
+        f"rtl_fm -f {frequency}M "
+        f"{device_idx_param}"
+        f"{'-T ' if bias else ''}"
+        f"{ppm_param}"
+        f"{gain_param}"
+        f"| direwolf -c direwolf.conf -r 24000 -"
+    )
 
-print("command:", rtl_fm_cmd)
+    if source != "RTL-SDR":
+        if device_idx != '':
+            device_idx_param = f"{str(device_idx)} "
+        rtl_fm_cmd = (
+        f"{device_idx_param}"
+        f"| direwolf -c direwolf.conf -r 24000 -"
+        )
+    else:
+        rtl_fm_cmd = ('')
 
+    print("command:", rtl_fm_cmd)
 
-# Send the command to the container to run
-subprocess.run(rtl_fm_cmd, 
-    shell=True, check=True, text=True)
-
+    # Send the command to the container to run
+    subprocess.run(rtl_fm_cmd, 
+        shell=True, check=True, text=True)
+else:
+    sys.exit()
