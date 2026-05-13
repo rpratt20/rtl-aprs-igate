@@ -19,13 +19,14 @@ from configparser import RawConfigParser
 filename = "station.conf"
 rtl_aprs_igate_config = {
     # SDR settings
-    "source": "RTL-SDR",
-    "frequency": 144.39,
+    "source": "RTLSDR",
+    "pcm_command": "pcmrecord",
+    "frequency": 144.390,
     "device_idx": 0,
     "ppm": 0,
     "bias": False,
     "gain": -1,
-    "mycall": "TEST",
+    "mycall": "KJ0RE",
     "igserver": "noam.aprs2.net",
     "igpasscode": "12345",
     "pbeacon": False,
@@ -52,13 +53,14 @@ config.read(filename)
 # RTL-FM Options
 ################
 source = config.get("rtl_fm", "source")
+pcm_command = config.get("rtl_fm", "pcm_command")
 frequency = config.getfloat("rtl_fm", "frequency")
 device_idx = config.get("rtl_fm", "device_idx")
 ppm = config.getfloat("rtl_fm", "ppm")
 gain = config.getfloat("rtl_fm", "gain")
 try:
     bias = config.getboolean("rtl_fm", "bias")
-except: 
+except:
     logging.warning("Config file: Bias-Tee option is not defined as True or False. Setting to False.")
     bias = False
 
@@ -66,11 +68,6 @@ except:
 if frequency < 100 or frequency > 800:
     logging.critical("Config file: Frequency %s is not valid! (Outside 100 - 800 MHz)" % frequency)
     sys.exit()
-
-if source != "RTL-SDR":
-    if frequency < 430 or frequency > 450:
-        logging.critical("Config file: Frequency %s is not suited for ka9q ground station! (Outside 430 - 450 MHz)" % frequency)
-        sys.exit()
 
 if ppm < -20 or ppm > 20:
     logging.critical("Config file: PPM %s is not valid! (Outside +/- 20 ppm)" % ppm)
@@ -82,12 +79,14 @@ if gain < -1 or gain > 40:
 
 
 # Generate the arguments based on config file
+source_param = f"{str(source)}"
+pcm_param = f"{str(pcm_command)}"
 # If there is device_idx (which is a string) specified, otherwise don't even print a -d argument
 if device_idx != '0':
     device_idx_param = f"-d {str(device_idx)} "
 else:
     device_idx_param = ""
-    
+
 # If there is a PPM specified, otherwise don't even print a -p argument
 if ppm != 0:
     ppm_param = f"-p {ppm} "
@@ -101,6 +100,8 @@ else:
     gain_param = ""
 
 # Print the options
+print(f"SOURCE: {source}")
+print(f"pcm_command: {pcm_command}")
 print(f"Frequency: {frequency:.3f} MHz")
 print(f"Device_index: {device_idx}")
 print(f"PPM: {ppm}")
@@ -141,43 +142,49 @@ try:
         file.write(f"{pbeacon}\n")
 #        file.write("
         file.close()
-        
+
         with open("direwolf.conf", 'r') as file:
             print(file.read())
 
 except FileExistsError:
     print("Direwolf.conf already exists. Using existing file.")
 
-
-
 ####################
 # Command Generation
 ####################
-if source != "ka9q":
 
-    rtl_fm_cmd = (
-        f"rtl_fm -f {frequency}M "
-        f"{device_idx_param}"
-        f"{'-T ' if bias else ''}"
-        f"{ppm_param}"
-        f"{gain_param}"
-        f"| direwolf -c direwolf.conf -r 24000 -"
-    )
+rtl_fm_cmd = (
+    f"rtl_fm -f {frequency}M "
+    f"{device_idx_param}"
+    f"{'-T ' if bias else ''}"
+    f"{ppm_param}"
+    f"{gain_param}"
+    f"| direwolf -c direwolf.conf -r 24000 -"
+)
 
-    if source != "RTL-SDR":
-        if device_idx != '':
-            device_idx_param = f"{str(device_idx)} "
-        rtl_fm_cmd = (
-        f"{device_idx_param}"
-        f"| direwolf -c direwolf.conf -r 24000 -"
-        )
-    else:
-        rtl_fm_cmd = ('')
+ka9q_command = (
+    f"{pcm_command}"
+    f"| direwolf -c direwolf.conf -r 24000 -"
+)
 
-    print("command:", rtl_fm_cmd)
 
-    # Send the command to the container to run
-    subprocess.run(rtl_fm_cmd, 
-        shell=True, check=True, text=True)
+sound_command = "direwolf -c direwolf.conf -r 24000 -"
+
+if source == "RTLSDR":
+    cmd = rtl_fm_cmd
+
+elif source_param == "ka9q":
+    cmd = ka9q_command
+
+elif source_param == "sound":
+    cmd =sound_command 
+
 else:
-    sys.exit()
+    print("No source selected")
+
+print("command:", cmd)
+
+
+# Send the command to the container to run
+subprocess.run(cmd,
+    shell=True, check=True, text=True)
