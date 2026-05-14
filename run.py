@@ -115,6 +115,7 @@ print(f"Gain: {gain}")
 
 mycall = config.get("direwolf", "mycall")
 ssid = config.get("direwolf", "ssid")
+adevice = config.get("direwolf", "adevice")
 igserver = config.get("direwolf", "igserver")
 igpasscode = config.get("direwolf", "igpasscode")
 pbeacon = config.getboolean("direwolf", "pbeacon")
@@ -134,7 +135,7 @@ else:
 try:
     with open("direwolf.conf", "x") as file:
         file.write(f"# Direwolf.conf file generated: {datetime.datetime.now()}\n")
-        file.write(f"ADEVICE null null\n")
+        file.write(f"ADEVICE {adevice}\n")
         file.write(f"CHANNEL 0\n")
         file.write(f"MYCALL {mycall}-{ssid}\n")
         file.write(f"IGSERVER {igserver}\n")
@@ -168,7 +169,7 @@ ka9q_command = (
 )
 
 
-sound_command = "direwolf -c direwolf.conf -r 24000 -"
+sound_command = "direwolf -c direwolf.conf -r 48000"
 
 if source == "RTLSDR":
     cmd = rtl_fm_cmd
