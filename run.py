@@ -168,8 +168,10 @@ ka9q_command = (
     f"| direwolf -c direwolf.conf -r 24000 -"
 )
 
-
-sound_command = "direwolf -c direwolf.conf -r 48000"
+if adevice == "null null":
+    sound_command = "direwolf -c direwolf.conf -"
+else:
+    sound_command = "direwolf -c direwolf.conf"    
 
 if source == "RTLSDR":
     cmd = rtl_fm_cmd
