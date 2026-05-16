@@ -141,7 +141,9 @@ try:
         file.write(f"IGSERVER {igserver}\n")
         file.write(f"IGLOGIN {mycall}-{ssid} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
-#        file.write("
+        if lat != 0.0 or long != 0.0:
+            file.write(f"LATITUDE {lat}\n")
+            file.write(f"LONGITUDE {long}\n")
         file.close()
 
         with open("direwolf.conf", 'r') as file:
@@ -165,7 +167,7 @@ rtl_fm_cmd = (
 
 ka9q_command = (
     f"{pcm_command}"
-    f"| direwolf -c direwolf.conf -r 24000 -"
+    f"| direwolf -c direwolf.conf -"
 )
 
 if adevice == "null null":
@@ -187,7 +189,14 @@ else:
 
 print("command:", cmd)
 
-
-# Send the command to the container to run
-subprocess.run(cmd,
-    shell=True, check=True, text=True)
+if source != "ka9q":
+    # Send the command to the container to run
+    subprocess.run(cmd, shell=True, check=True, text=True)
+else:
+    #try:
+    #with open("ka9qdirew.sh", "x") as file:
+    #file.write(cmd)    
+    #file.close()
+    print("Command file ka9qdirew.sh is being used.")                
+    #except:
+    #print("command_script not correct for ka9q.")
