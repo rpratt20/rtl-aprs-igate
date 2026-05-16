@@ -151,9 +151,8 @@ try:
         with open("direwolf.conf", 'r') as file:
             print(file.read())
 
-except: FileExistsError:
-    print("Direwolf.conf already exists. Using existing file but we should not.")
-
+except FileExistsError:
+    print("Direwolf.conf already exists. Using existing file.")
 ####################
 # Command Generation
 ####################
