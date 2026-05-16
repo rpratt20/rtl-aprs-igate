@@ -142,6 +142,7 @@ try:
         file.write(f"IGSERVER {igserver}\n")
         file.write(f"IGLOGIN {mycall}-{ssid} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
+
         if lat != 0.0 or long != 0.0:
             file.write(f"LATITUDE {lat}\n")
             file.write(f"LONGITUDE {long}\n")
@@ -150,8 +151,8 @@ try:
         with open("direwolf.conf", 'r') as file:
             print(file.read())
 
-except FileExistsError:
-    print("Direwolf.conf already exists. Using existing file.")
+except: FileExistsError:
+    print("Direwolf.conf already exists. Using existing file but we should not.")
 
 ####################
 # Command Generation
