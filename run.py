@@ -136,13 +136,13 @@ else:
 try:
     with open("direwolf.conf", "x") as file:
         file.write(f"# Direwolf.conf file generated: {datetime.datetime.now()}\n")
+
         file.write(f"ADEVICE {adevice}\n")
         file.write(f"CHANNEL 0\n")
         file.write(f"MYCALL {mycall}-{ssid}\n")
         file.write(f"IGSERVER {igserver}\n")
         file.write(f"IGLOGIN {mycall}-{ssid} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
-
         if lat != 0.0 or long != 0.0:
             file.write(f"LATITUDE {lat}\n")
             file.write(f"LONGITUDE {long}\n")
