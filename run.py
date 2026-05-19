@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 #
-#  AS of Saturday noon
 #   rtl-aprs-igate - Configuration File Reader
 #     Reads a RTL-SDR configuration file, verifies input values,
 #     and generates the rtl_fm options
@@ -136,7 +135,6 @@ else:
 try:
     with open("direwolf.conf", "x") as file:
         file.write(f"# Direwolf.conf file generated: {datetime.datetime.now()}\n")
-
         file.write(f"ADEVICE {adevice}\n")
         file.write(f"CHANNEL 0\n")
         file.write(f"MYCALL {mycall}-{ssid}\n")
@@ -153,6 +151,7 @@ try:
 
 except FileExistsError:
     print("Direwolf.conf already exists. Using existing file.")
+
 ####################
 # Command Generation
 ####################
@@ -167,8 +166,8 @@ rtl_fm_cmd = (
 )
 
 ka9q_command = (
-    f"{pcm_command}"
-    f"| direwolf -c direwolf.conf -"
+    # f"{pcm_command}"
+    f"/bin/ka9qdirew.sh"
 )
 
 if adevice == "null null":
@@ -183,14 +182,14 @@ elif source_param == "ka9q":
     cmd = ka9q_command
 
 elif source_param == "sound":
-    cmd =sound_command 
+    cmd = sound_command 
 
 else:
     print("No source selected")
 
 print("command:", cmd)
 
-if source != "ka9q":
+if source == "ka9q":
     # Send the command to the container to run
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
@@ -198,6 +197,7 @@ else:
     #with open("ka9qdirew.sh", "x") as file:
     #file.write(cmd)    
     #file.close()
-    print("Command file ka9qdirew.sh is being used.")                
+    #print("Command file ka9qdirew.sh is being used.")                
     #except:
     #print("command_script not correct for ka9q.")
+    print("We should not be here at end of run.py")

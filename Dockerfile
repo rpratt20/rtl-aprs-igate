@@ -57,6 +57,9 @@ RUN ldconfig
 # Copy the run.py script into the container
 COPY run.py /
 
+# Ensure scripts from Python packages are in PATH.
+ENV PATH=/root/.local/bin:$PATH
+
 # Use tini as init.
 ENTRYPOINT ["/usr/bin/tini", "--"]
 

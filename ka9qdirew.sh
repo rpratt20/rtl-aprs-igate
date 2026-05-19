@@ -33,6 +33,7 @@ echo "Configuring receiver on ka9q-radio"
 tune --samprate 48000 --mode fm --frequency $RXFREQ --ssrc $SSRC --radio $RADIO
 
 echo "Starting receiver chain"
+cd 
 pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 1 | \
   $DECODER -c direwolf.conf - $@ &
 
