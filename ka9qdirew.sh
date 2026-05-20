@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#	Horus Binary KA9Q-Radio Helper Script
+#	Horus Binary KA9Q-Radio Helper Script 19May 2102
 #
 #   Uses ka9q-radio (pcmrecord) to receive a chunk of spectrum, and passes it into Direwolf.
 #

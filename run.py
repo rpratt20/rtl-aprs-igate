@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#   rtl-aprs-igate - Configuration File Reader
+#   rtl-aprs-igate - Configuration File Reader 19May 2102
 #     Reads a RTL-SDR configuration file, verifies input values,
 #     and generates the rtl_fm options
 #
