@@ -166,8 +166,7 @@ rtl_fm_cmd = (
 )
 
 ka9q_command = (
-    f"{""}"
-    
+    ""  
 )
 
 if adevice == "null null":
