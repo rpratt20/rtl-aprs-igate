@@ -166,7 +166,8 @@ rtl_fm_cmd = (
 )
 
 ka9q_command = (
-    ""  
+    f"{pcm_command}"
+    f"| direwolf -c direwolf.conf -r 24000 -"  
 )
 
 if adevice == "null null":
@@ -193,4 +194,4 @@ if source != "ka9q":
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
     print("Command file ka9qdirew.sh is being used.")                
-    # subprocess.run(bash -c, shell=True, check=True, text=True)   
+    subprocess.run(cmd, shell=True, check=True, text=True)

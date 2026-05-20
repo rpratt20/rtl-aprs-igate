@@ -18,7 +18,7 @@ RADIO=$(echo $SDR_DEVICE | sed 's/-pcm//g')
 exit_rx() {
     echo "Exiting..."
     echo "Closing channel $SSRC at frequency $RXFREQ"
-    timeout 2 tune --samprate 48000 --mode fm --frequency 0 --ssrc $SSRC --radio $RADIO
+    timeout 2 tune --samprate 24000 --mode fm --frequency 0 --ssrc $SSRC --radio $RADIO
     pkill bash
 }
 
@@ -29,13 +29,11 @@ echo "Using PCM stream: $SDR_DEVICE"
 # Start the receive chain.
 # Note that we now pass in the SDR centre frequency ($RXFREQ))
 
-echo "Configuring receiver on ka9q-radio"
-tune --samprate 48000 --mode fm --frequency $RXFREQ --ssrc $SSRC --radio $RADIO
+tune --mode pm --samprate 24000 frequency $RXFREQ --ssrc $SSRC --radio $RADIO
 
 echo "Starting receiver chain"
-cd 
-pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 1 | \
-  $DECODER -c direwolf.conf - $@ &
+pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 | \
+  $DECODER -c /direwolf.conf -t 0 &
 
 echo "Started everything, waiting for any failed processes"
 
