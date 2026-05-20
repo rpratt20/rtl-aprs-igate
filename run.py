@@ -141,9 +141,6 @@ try:
         file.write(f"IGSERVER {igserver}\n")
         file.write(f"IGLOGIN {mycall}-{ssid} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
-        if lat != 0.0 or long != 0.0:
-            file.write(f"LATITUDE {lat}\n")
-            file.write(f"LONGITUDE {long}\n")
         file.close()
 
         with open("direwolf.conf", 'r') as file:
@@ -193,5 +190,5 @@ if source != "ka9q":
     # Send the command to the container to run
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
-    print("Command file ka9qdirew.sh is being used.")                
-    subprocess.run(cmd, shell=True, check=True, text=True)
+    print("Command file ka9qdirew.sh is being used.")               
+    subprocess.run(cmd, shell=True, check=True, text=True,)
