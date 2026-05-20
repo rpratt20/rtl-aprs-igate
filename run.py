@@ -192,11 +192,5 @@ if source != "ka9q":
     # Send the command to the container to run
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
-    #try:
-    #with open("ka9qdirew.sh", "x") as file:
-    #file.write(cmd)    
-    #file.close()
     print("Command file ka9qdirew.sh is being used.")                
-    #except:
-    #print("command_script not correct for ka9q.")
-    print("We should not be here at end of run.py")
+    # subprocess.run(bash -c, shell=True, check=True, text=True)   
