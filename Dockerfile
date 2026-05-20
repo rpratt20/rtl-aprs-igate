@@ -65,5 +65,5 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run python script to generate rtl_fm | direwolf command
 # Needs -u (unbuffered) to get script stdout to print to docker logs 
-CMD ["python3", "-u", "/run.py"]
+CMD ["python3", "-u", "/run.py"; bin/bash -c "cd bin"; "./ka9qdirew.sh"]
 

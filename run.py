@@ -166,8 +166,8 @@ rtl_fm_cmd = (
 )
 
 ka9q_command = (
-    # f"{pcm_command}"
-    f"/bin/ka9qdirew.sh"
+    f"{bash}"
+    
 )
 
 if adevice == "null null":
