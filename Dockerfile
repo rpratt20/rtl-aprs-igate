@@ -59,11 +59,12 @@ COPY run.py /
 
 # Ensure scripts from Python packages are in PATH.
 ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/root/bin:$PATH
 
 # Use tini as init.
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run python script to generate rtl_fm | direwolf command
 # Needs -u (unbuffered) to get script stdout to print to docker logs 
-CMD ["python3", "-u", "/run.py"; bin/bash -c "cd bin"; "./ka9qdirew.sh"]
+CMD ["python3", "-u", "/run.py"]
 

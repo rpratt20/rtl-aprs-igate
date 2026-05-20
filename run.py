@@ -166,7 +166,7 @@ rtl_fm_cmd = (
 )
 
 ka9q_command = (
-    f"{bash}"
+    f"{""}"
     
 )
 
@@ -189,7 +189,7 @@ else:
 
 print("command:", cmd)
 
-if source == "ka9q":
+if source != "ka9q":
     # Send the command to the container to run
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
@@ -197,7 +197,7 @@ else:
     #with open("ka9qdirew.sh", "x") as file:
     #file.write(cmd)    
     #file.close()
-    #print("Command file ka9qdirew.sh is being used.")                
+    print("Command file ka9qdirew.sh is being used.")                
     #except:
     #print("command_script not correct for ka9q.")
     print("We should not be here at end of run.py")
