@@ -1,17 +1,21 @@
 # -------------------
-# The build container  19May 2102
+# The build container klofas aprs build basis for me
 # -------------------
 FROM debian:bookworm-slim AS build
 
+# ka9q-radio commit:
+ARG KA9Q_REF=cc22b5f5e3c26c37df441ebff29eea7d59031afd
+
 # Upgrade bookworm and install dependencies
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
-    cmake \
-    build-essential \
-    ca-certificates \
-    git \
-    libusb-1.0-0-dev \
-    pkg-config \
-    libasound2-dev
+    cmake build-essential ca-certificates git libusb-1.0-0-dev \
+    libatlas-base-dev libsoapysdr-dev soapysdr-module-all \
+    libairspy-dev libairspyhf-dev libavahi-client-dev libbsd-dev \
+    libfftw3-dev libhackrf-dev libiniparser-dev libncurses5-dev \
+    libopus-dev librtlsdr-dev libusb-1.0-0-dev libusb-dev \
+    portaudio19-dev libasound2-dev libogg-dev uuid-dev rsync unzip \
+    libffi-dev &&\
+    rm -rf /var/lib/apt/lists/*
 
 # Build and install RTL-SDR software into /root/target/usr/local
 RUN git clone --depth 1 https://github.com/rtlsdrblog/rtl-sdr-blog.git && \
@@ -29,13 +33,32 @@ RUN git clone --depth 1 https://github.com/wb2osz/direwolf.git && \
     make -j4 && \
     make install
 
+RUN git clone --depth 1 https://github.com/rxseger/rx_tools.git &&\
+    cd rx_tools &&\
+    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+    cmake --build build --target install
+
+# Compile and install pcmcat and tune from KA9Q-Radio
+ADD https://github.com/ka9q/ka9q-radio/archive/$KA9Q_REF.zip /tmp/ka9q-radio.zip
+RUN unzip /tmp/ka9q-radio.zip -d /tmp && \
+  cd /tmp/ka9q-radio-$KA9Q_REF && \
+  make \
+    -f Makefile.linux \
+    ARCHOPTS= \
+    pcmrecord tune && \
+  mkdir -p /target/usr/bin/ && \
+  cp pcmrecord /target/usr/bin/ && \
+  cp tune /target/usr/bin/ && \
+  rm -rf /root/ka9q-radio
+
+COPY scripts/* /target/usr/bin/
 
 # -------------------------
 # The application container
 # -------------------------
 FROM debian:bookworm-slim
 
-LABEL org.opencontainers.image.title="rtl-aprs-igate"
+LABEL org.opencontainers.image.title="rtl-aprs-igate wirh ka9q"
 LABEL org.opencontainers.image.description="APRS Igate using RTL-SDR dongle"
 LABEL org.opencontainers.image.authors="Bryan Klofas KF6ZEO bklofas@gmail"
 LABEL org.opencontainers.image.source="https://github.com/bklofas/rtl-aprs-igate"
@@ -46,8 +69,16 @@ RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recom
     tini \
     python3 \
     libusb-1.0-0-dev \
-    libasound2-dev && \
+    libasound2-dev  \
+    libusb-1.0-0 \
+    avahi-utils \
+    libnss-mdns \
+    libbsd0 \
+    libopus0 \
+    libogg0 \
+    soapysdr-module-all &&\
     rm -rf /var/lib/apt/lists/*
+
 
 # Copy pre-built RTL-SDR and direwolf from /root/target/usr/local into /usr/local.
 # ldconfig is for the RTL-SDR USB libraries
@@ -67,4 +98,3 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 # Run python script to generate rtl_fm | direwolf command
 # Needs -u (unbuffered) to get script stdout to print to docker logs 
 CMD ["python3", "-u", "/run.py"]
-
