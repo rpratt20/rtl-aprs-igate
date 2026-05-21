@@ -1,5 +1,5 @@
 # -------------------
-# The build container klofas aprs build basis for me
+# The build container klofas aprs build basis for me 21 May 1613.
 # -------------------
 FROM debian:bookworm-slim AS build
 
@@ -38,6 +38,9 @@ RUN git clone --depth 1 https://github.com/rxseger/rx_tools.git &&\
     cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
     cmake --build build --target install
 
+# install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
+RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local && mkdir /target/etc && mkdir /target/wheels
+
 # Compile and install pcmcat and tune from KA9Q-Radio
 ADD https://github.com/ka9q/ka9q-radio/archive/$KA9Q_REF.zip /tmp/ka9q-radio.zip
 RUN unzip /tmp/ka9q-radio.zip -d /tmp && \
@@ -51,7 +54,6 @@ RUN unzip /tmp/ka9q-radio.zip -d /tmp && \
   cp tune /target/usr/bin/ && \
   rm -rf /root/ka9q-radio
 
-COPY scripts/* /target/usr/bin/
 
 # -------------------------
 # The application container
@@ -65,9 +67,13 @@ LABEL org.opencontainers.image.source="https://github.com/bklofas/rtl-aprs-igate
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Upgrade bookworm and install dependencies
+FROM debian:bookworm-slim AS prod
+RUN apt -y update
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
     tini \
     python3 \
+    libbsd0 \
+    libatlas3-base \
     libusb-1.0-0-dev \
     libasound2-dev  \
     libusb-1.0-0 \
@@ -78,6 +84,9 @@ RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recom
     libogg0 \
     soapysdr-module-all &&\
     rm -rf /var/lib/apt/lists/*
+
+# Allow mDNS resolution
+RUN sed -i -e 's/files dns/files mdns4_minimal [NOTFOUND=return] dns/g' /etc/nsswitch.conf
 
 
 # Copy pre-built RTL-SDR and direwolf from /root/target/usr/local into /usr/local.

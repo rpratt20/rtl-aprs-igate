@@ -191,4 +191,4 @@ if source != "ka9q":
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
     print("Command file ka9qdirew.sh is being used.")               
-    subprocess.run(cmd, shell=True, check=True, text=True,)
+    subprocess.run([sys.executable, "-c", "./ka9qdirew.sh"], shell=True, check=True, text=True)

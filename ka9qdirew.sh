@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-#
+#!rtl-aprs-igate bash -c
 #	Horus Binary KA9Q-Radio Helper Script 19May 2102
 #
 #   Uses ka9q-radio (pcmrecord) to receive a chunk of spectrum, and passes it into Direwolf.
 #
-
+print("Entering start script")
 set -e
 set -u
 set -o pipefail
@@ -18,7 +18,7 @@ RADIO=$(echo $SDR_DEVICE | sed 's/-pcm//g')
 exit_rx() {
     echo "Exiting..."
     echo "Closing channel $SSRC at frequency $RXFREQ"
-    timeout 2 tune --samprate 24000 --mode fm --frequency 0 --ssrc $SSRC --radio $RADIO
+    timeout 120 tune --samprate 24000 --mode fm --frequency 0 --ssrc $SSRC --radio $RADIO
     pkill bash
 }
 
@@ -35,6 +35,7 @@ echo "Starting receiver chain"
 pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 | \
   $DECODER -c /direwolf.conf -t 0 &
 
+print("Used 'pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 + direwolf'")
 echo "Started everything, waiting for any failed processes"
 
 wait -n 
