@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-#!rtl-aprs-igate bash -c
 #	Horus Binary KA9Q-Radio Helper Script 19May 2102
 #
 #   Uses ka9q-radio (pcmrecord) to receive a chunk of spectrum, and passes it into Direwolf.
 #
-print("Entering start script")
+echo "Entering start script"
+
 set -e
 set -u
 set -o pipefail
@@ -28,14 +28,15 @@ echo "Using PCM stream: $SDR_DEVICE"
 
 # Start the receive chain.
 # Note that we now pass in the SDR centre frequency ($RXFREQ))
-
+cd bin
 tune --mode pm --samprate 24000 frequency $RXFREQ --ssrc $SSRC --radio $RADIO
 
 echo "Starting receiver chain"
 pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 | \
-  $DECODER -c /direwolf.conf -t 0 &
+  $DECODER -c /direwolf.conf -
+# t 0 & what are these for?
 
-print("Used 'pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 + direwolf'")
+echo "Used 'pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 |direwolf'"
 echo "Started everything, waiting for any failed processes"
 
 wait -n 

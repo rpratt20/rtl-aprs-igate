@@ -54,6 +54,7 @@ RUN unzip /tmp/ka9q-radio.zip -d /tmp && \
   cp tune /target/usr/bin/ && \
   rm -rf /root/ka9q-radio
 
+COPY scripts/* /target/usr/bin/ 
 
 # -------------------------
 # The application container
