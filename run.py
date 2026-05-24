@@ -184,11 +184,12 @@ elif source_param == "sound":
 else:
     print("No source selected")
 
-print("command:", cmd)
+
 
 if source != "ka9q":
+    print("command:", cmd)
     # Send the command to the container to run
     subprocess.run(cmd, shell=True, check=True, text=True)
 else:
     print("Command file ka9qdirew.sh is being used.")               
-    subprocess.run([sys.executable, "export PATH=$PATH:/bin"], shell=True, check=True, text=True)
+    subprocess.run(cmd, shell=True, check=True, text=True)

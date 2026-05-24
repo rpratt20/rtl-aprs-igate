@@ -1,14 +1,18 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 #	Horus Binary KA9Q-Radio Helper Script 19May 2102
 #
 #   Uses ka9q-radio (pcmrecord) to receive a chunk of spectrum, and passes it into Direwolf.
 #
-echo "Entering start script"
+echo "Entering start script with path set as:"
+echo $PATH
 
 set -e
 set -u
 set -o pipefail
 set -x
+$RXFREQ 432900000
+$SDR_DEVICE ka9qdirew
+
 
 # trap "exit_rx" EXIT SIGINT SIGTERM
 
@@ -25,15 +29,16 @@ exit_rx() {
 echo "Using SDR Centre Frequency: $RXFREQ Hz"
 echo "Using SSRC: $SSRC"
 echo "Using PCM stream: $SDR_DEVICE"
+echo $PATH
 
 # Start the receive chain.
 # Note that we now pass in the SDR centre frequency ($RXFREQ))
-cd bin
+
 tune --mode pm --samprate 24000 frequency $RXFREQ --ssrc $SSRC --radio $RADIO
 
 echo "Starting receiver chain"
 pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 | \
-  $DECODER -c /direwolf.conf -
+$DECODER -c direwolf.conf -
 # t 0 & what are these for?
 
 echo "Used 'pcmrecord --ssrc $SSRC --catmode --raw $SDR_DEVICE --timeout 120 |direwolf'"

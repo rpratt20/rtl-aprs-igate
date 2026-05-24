@@ -33,12 +33,12 @@ RUN git clone --depth 1 https://github.com/wb2osz/direwolf.git && \
     make -j4 && \
     make install
 
-RUN git clone --depth 1 https://github.com/rxseger/rx_tools.git &&\
-    cd rx_tools &&\
-    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
-    cmake --build build --target install
+#RUN git clone --depth 1 https://github.com/rxseger/rx_tools.git &&\
+#    cd rx_tools &&\
+#    cmake -B build -DCMAKE_INSTALL_PREFIX=/target/usr -DCMAKE_BUILD_TYPE=Release &&\
+#    cmake --build build --target install
 
-# install everything in /target and it will go in to / on destination image. symlink make it easier for builds to find files installed by this.
+# install everything in /target and it will go in to / on destination image. symlink make it easier #for builds to find files installed by this.
 RUN mkdir -p /target/usr && rm -rf /usr/local && ln -sf /target/usr /usr/local && mkdir /target/etc && mkdir /target/wheels
 
 # Compile and install pcmcat and tune from KA9Q-Radio
@@ -53,8 +53,6 @@ RUN unzip /tmp/ka9q-radio.zip -d /tmp && \
   cp pcmrecord /target/usr/bin/ && \
   cp tune /target/usr/bin/ && \
   rm -rf /root/ka9q-radio
-
-COPY scripts/* /target/usr/bin/ 
 
 # -------------------------
 # The application container
@@ -73,22 +71,13 @@ RUN apt -y update
 RUN apt-get -y update && apt -y upgrade && apt-get -y install --no-install-recommends \
     tini \
     python3 \
-    libbsd0 \
-    libatlas3-base \
     libusb-1.0-0-dev \
     libasound2-dev  \
-    libusb-1.0-0 \
     avahi-utils \
     libnss-mdns \
-    libbsd0 \
     libopus0 \
-    libogg0 \
-    soapysdr-module-all &&\
+    libogg0 &&\
     rm -rf /var/lib/apt/lists/*
-
-# Allow mDNS resolution
-RUN sed -i -e 's/files dns/files mdns4_minimal [NOTFOUND=return] dns/g' /etc/nsswitch.conf
-
 
 # Copy pre-built RTL-SDR and direwolf from /root/target/usr/local into /usr/local.
 # ldconfig is for the RTL-SDR USB libraries
@@ -97,10 +86,6 @@ RUN ldconfig
 
 # Copy the run.py script into the container
 COPY run.py /
-
-# Ensure scripts from Python packages are in PATH.
-ENV PATH=/root/.local/bin:$PATH
-ENV PATH=/root/bin:$PATH
 
 # Use tini as init.
 ENTRYPOINT ["/usr/bin/tini", "--"]
