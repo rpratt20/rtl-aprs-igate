@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#   rtl-aprs-igate - Configuration File Reader
+#   rtl-aprs-igate - Configuration File Reader 19May 2102
 #     Reads a RTL-SDR configuration file, verifies input values,
 #     and generates the rtl_fm options
 #
@@ -19,12 +19,14 @@ from configparser import RawConfigParser
 filename = "station.conf"
 rtl_aprs_igate_config = {
     # SDR settings
-    "frequency": 144.39,
+    "source": "RTLSDR",
+    "pcm_command": "pcmrecord",
+    "frequency": 144.390,
     "device_idx": 0,
     "ppm": 0,
     "bias": False,
     "gain": -1,
-    "mycall": "TEST",
+    "mycall": "KJ0RE",
     "igserver": "noam.aprs2.net",
     "igpasscode": "12345",
     "pbeacon": False,
@@ -50,13 +52,15 @@ config.read(filename)
 ################
 # RTL-FM Options
 ################
+source = config.get("rtl_fm", "source")
+pcm_command = config.get("rtl_fm", "pcm_command")
 frequency = config.getfloat("rtl_fm", "frequency")
 device_idx = config.get("rtl_fm", "device_idx")
 ppm = config.getfloat("rtl_fm", "ppm")
 gain = config.getfloat("rtl_fm", "gain")
 try:
     bias = config.getboolean("rtl_fm", "bias")
-except: 
+except:
     logging.warning("Config file: Bias-Tee option is not defined as True or False. Setting to False.")
     bias = False
 
@@ -75,12 +79,14 @@ if gain < -1 or gain > 40:
 
 
 # Generate the arguments based on config file
+source_param = f"{str(source)}"
+pcm_param = f"{str(pcm_command)}"
 # If there is device_idx (which is a string) specified, otherwise don't even print a -d argument
 if device_idx != '0':
     device_idx_param = f"-d {str(device_idx)} "
 else:
     device_idx_param = ""
-    
+
 # If there is a PPM specified, otherwise don't even print a -p argument
 if ppm != 0:
     ppm_param = f"-p {ppm} "
@@ -94,6 +100,8 @@ else:
     gain_param = ""
 
 # Print the options
+print(f"SOURCE: {source}")
+print(f"pcm_command: {pcm_command}")
 print(f"Frequency: {frequency:.3f} MHz")
 print(f"Device_index: {device_idx}")
 print(f"PPM: {ppm}")
@@ -107,6 +115,7 @@ print(f"Gain: {gain}")
 
 mycall = config.get("direwolf", "mycall")
 ssid = config.get("direwolf", "ssid")
+adevice = config.get("direwolf", "adevice")
 igserver = config.get("direwolf", "igserver")
 igpasscode = config.get("direwolf", "igpasscode")
 pbeacon = config.getboolean("direwolf", "pbeacon")
@@ -126,22 +135,19 @@ else:
 try:
     with open("direwolf.conf", "x") as file:
         file.write(f"# Direwolf.conf file generated: {datetime.datetime.now()}\n")
-        file.write(f"ADEVICE null null\n")
+        file.write(f"ADEVICE {adevice}\n")
         file.write(f"CHANNEL 0\n")
         file.write(f"MYCALL {mycall}-{ssid}\n")
         file.write(f"IGSERVER {igserver}\n")
         file.write(f"IGLOGIN {mycall}-{ssid} {igpasscode}\n")
         file.write(f"{pbeacon}\n")
-#        file.write("
         file.close()
-        
+
         with open("direwolf.conf", 'r') as file:
             print(file.read())
 
 except FileExistsError:
     print("Direwolf.conf already exists. Using existing file.")
-
-
 
 ####################
 # Command Generation
@@ -156,10 +162,34 @@ rtl_fm_cmd = (
     f"| direwolf -c direwolf.conf -r 24000 -"
 )
 
-print("command:", rtl_fm_cmd)
+ka9q_command = (
+    f"{pcm_command}"
+    # f"| direwolf -c direwolf.conf -r 24000 -"  
+)
+
+if adevice == "null null":
+    sound_command = "direwolf -c direwolf.conf -"
+else:
+    sound_command = "direwolf -c direwolf.conf"    
+
+if source == "RTLSDR":
+    cmd = rtl_fm_cmd
+
+elif source_param == "ka9q":
+    cmd = ka9q_command
+
+elif source_param == "sound":
+    cmd = sound_command 
+
+else:
+    print("No source selected")
 
 
-# Send the command to the container to run
-subprocess.run(rtl_fm_cmd, 
-    shell=True, check=True, text=True)
 
+if source != "ka9q":
+    print("command:", cmd)
+    # Send the command to the container to run
+    subprocess.run(cmd, shell=True, check=True, text=True)
+else:
+    print("Command file ka9qdirew.sh is being used.")               
+    subprocess.run(cmd, shell=True, check=True, text=True)

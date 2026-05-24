@@ -181,5 +181,6 @@ If you'd like to build the container against a branch `docker build -t rtl-aprs-
 * [darksidelemm](https://github.com/darksidelemm) for the [radiosonde_auto_rx](https://github.com/projecthorus/radiosonde_auto_rx/wiki) project, where I stole a bunch of docker ideas and documentation.
 * [johnboiles](https://github.com/johnboiles) and his [pi-rtlsdr-igate-docker](https://github.com/johnboiles/pi-rtlsdr-igate-docker) project, which has almost everything I wanted but uses environment variables instead of a config file.
 
+docker build -t rtl-aprs-igate ~/balloonatics/ground_station/rtl-aprs-igate
 
 
